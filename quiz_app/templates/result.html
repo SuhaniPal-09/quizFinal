@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Quiz Result - Quiz App{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-score">
+        <div class="score-number">{{ result.score }}/{{ result.total_questions }}</div>
+        <div class="score-text">You scored {{ result.percentage|floatformat:1 }}%</div>
+    </div>
+    
+    <h3 class="mb-4">Review Your Answers</h3>
+    
+    {% for qa in question_answers %}
+        <div class="answer-review {% if qa.user_answer.selected_option.is_correct %}correct{% else %}incorrect{% endif %}">
+            <div class="review-question">
+                Q{{ forloop.counter }}: {{ qa.question.question_text }}
+            </div>
+            
+            {% if qa.user_answer %}
+                <div class="review-answer user">
+                    Your answer: <strong>{{ qa.user_answer.selected_option.option_text }}</strong>
+                    {% if qa.user_answer.selected_option.is_correct %}
+                        <span class="status-badge correct">Correct</span>
+                    {% else %}
+                        <span class="status-badge incorrect">Incorrect</span>
+                    {% endif %}
+                </div>
+                
+                {% if not qa.user_answer.selected_option.is_correct %}
+                    <div class="review-answer correct">
+                        Correct answer: <strong>{{ qa.correct_option.option_text }}</strong>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="review-answer incorrect">
+                    You didn't answer this question.
+                </div>
+                <div class="review-answer correct">
+                    Correct answer: <strong>{{ qa.correct_option.option_text }}</strong>
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    
+    <div class="mt-5 text-center">
+        <a href="{% url 'student_quiz_list' %}" class="btn btn-primary btn-lg">
+            Back to Quizzes
+        </a>
+    </div>
+</div>
+{% endblock %}

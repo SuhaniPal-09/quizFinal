@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Question - Quiz App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                Add Question to "{{ quiz.title }}"
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-group mb-4">
+                        <label for="question_text"><strong>Question</strong></label>
+                        <textarea 
+                            class="form-control" 
+                            id="question_text" 
+                            name="question_text" 
+                            placeholder="Enter your question"
+                            rows="3"
+                            required
+                        >{{ question_text }}</textarea>
+                    </div>
+                    
+                    <h5 class="mb-3">Options (Select exactly one as correct)</h5>
+                    
+                    {% for option in option_fields %}
+                        <div class="card mb-3" style="background-color: #f8f9fa;">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-9">
+                                        <label for="option_{{ option.number }}">Option {{ option.number }}</label>
+                                        <input 
+                                            type="text" 
+                                            class="form-control" 
+                                            id="option_{{ option.number }}" 
+                                            name="option_{{ option.number }}" 
+                                            placeholder="Enter option text"
+                                            value="{{ option.text }}"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-check mt-3">
+                                            <input 
+                                                type="checkbox" 
+                                                class="form-check-input" 
+                                                id="correct_{{ option.number }}" 
+                                                name="correct_{{ option.number }}"
+                                                {% if option.is_correct %}checked{% endif %}
+                                            >
+                                            <label class="form-check-label" for="correct_{{ option.number }}">
+                                                Correct Answer
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    
+                    <div class="alert alert-warning" role="alert">
+                        Make sure you check exactly one option as the correct answer.
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Save Question
+                        </button>
+                        <a href="{% url 'edit_quiz' quiz.id %}" class="btn btn-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Available Quizzes - Quiz App{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="dashboard-title">Available Quizzes</h1>
+    <p class="text-muted">Select a quiz to test your knowledge</p>
+    <p class="text-muted">Department: <strong>{{ department_name }}</strong></p>
+</div>
+
+{% if available_quizzes %}
+    <h3 class="mb-3">Take a Quiz</h3>
+    <div class="quiz-grid">
+        {% for quiz in available_quizzes %}
+            <div class="quiz-card">
+                <div class="quiz-card-body">
+                    <h3 class="quiz-card-title">{{ quiz.title }}</h3>
+                    <p class="quiz-card-desc">{{ quiz.description|truncatewords:15 }}</p>
+                    
+                    <div class="quiz-card-meta">
+                        <p>Questions: {{ quiz.questions.count }}</p>
+                        <p>Created by: {{ quiz.teacher.first_name|default:quiz.teacher.username }}</p>
+                        <p>Department: {{ quiz.teacher.profile.get_department_display }}</p>
+                    </div>
+                    
+                    <div class="quiz-card-footer">
+                        {% if quiz.questions.count %}
+                            <a href="{% url 'take_quiz' quiz.id %}" class="btn btn-success btn-sm">
+                                Take Quiz
+                            </a>
+                        {% else %}
+                            <button type="button" class="btn btn-secondary btn-sm" disabled>
+                                No Questions Yet
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    {% if not completed_results %}
+        <div class="alert alert-info" role="alert">
+            <h4 class="alert-heading">No Quizzes Available</h4>
+            <p>There are no active quizzes available at the moment. Please check back later!</p>
+        </div>
+    {% endif %}
+{% endif %}
+
+{% if completed_results %}
+    <h3 class="mt-5 mb-3">Completed Quizzes</h3>
+    <div class="quiz-grid">
+        {% for result in completed_results %}
+            <div class="quiz-card">
+                <div class="quiz-card-body">
+                    <h3 class="quiz-card-title">{{ result.quiz.title }}</h3>
+                    <p class="quiz-card-desc">{{ result.quiz.description|truncatewords:15 }}</p>
+                    
+                    <div class="quiz-card-meta">
+                        <p>Score: <strong>{{ result.score }}/{{ result.total_questions }}</strong></p>
+                        <p>Percentage: <strong>{{ result.percentage|floatformat:1 }}%</strong></p>
+                        <p>Completed: {{ result.completed_at|date:"M d, Y" }}</p>
+                        <p>Department: {{ result.quiz.teacher.profile.get_department_display }}</p>
+                    </div>
+                    
+                    <div class="quiz-card-footer">
+                        <a href="{% url 'quiz_result' result.id %}" class="btn btn-info btn-sm">
+                            View Result
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if available_quizzes %}
+    <p class="mt-4 text-muted text-center">{{ available_quizzes.count }} quiz(zes) available to take</p>
+{% endif %}
+{% endblock %}

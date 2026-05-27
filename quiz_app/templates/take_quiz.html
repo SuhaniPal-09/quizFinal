@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Take Quiz: {{ quiz.title }} - Quiz App{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="mb-4">
+            <h1 class="dashboard-title">{{ quiz.title }}</h1>
+            <p class="text-muted">{{ quiz.description }}</p>
+            <div class="alert alert-info">
+                This quiz has <strong>{{ questions.count }}</strong> questions. 
+                All questions must be answered.
+            </div>
+        </div>
+        
+        <form method="POST" id="quiz_form">
+            {% csrf_token %}
+            
+            {% for question in questions %}
+                <div class="question-container">
+                    <div class="question-number">
+                        Question {{ forloop.counter }} of {{ questions.count }}
+                    </div>
+                    
+                    <div class="question-text">
+                        {{ question.question_text }}
+                    </div>
+                    
+                    <div>
+                        {% for option in question.options.all %}
+                            <label class="option">
+                                <input 
+                                    type="radio" 
+                                    name="question_{{ question.id }}" 
+                                    value="{{ option.id }}"
+                                    {% if option.id|stringformat:"s" in selected_option_ids %}checked{% endif %}
+                                    required
+                                >
+                                <span class="option-text">{{ option.option_text }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-lg">
+                    Submit Quiz
+                </button>
+                <a href="{% url 'student_quiz_list' %}" class="btn btn-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('quiz_form').addEventListener('submit', function(e) {
+        let allAnswered = true;
+        
+        {% for question in questions %}
+            let q{{ question.id }} = document.querySelector('input[name="question_{{ question.id }}"]:checked');
+            if (!q{{ question.id }}) {
+                allAnswered = false;
+            }
+        {% endfor %}
+        
+        if (!allAnswered) {
+            e.preventDefault();
+            alert('Please answer all questions before submitting.');
+        }
+    });
+</script>
+{% endblock %}
